@@ -121,6 +121,15 @@ $ linker_report.py --human-readable --out-format table --object object1.o
 |var2|0|4|0|
 ```
 
+Generate a wiki table with all the symbols smaller than 8 bytes contained in an object file:
+
+```console
+$ linker_report.py --filter "size<8" --out-format table --archive ./archive.a
+||Name||Program size||Data size||Read-only data size||
+|var3|0|0|4|
+|var2|0|4|0|
+```
+
 We need now an executable ELF file.
 
 ```console

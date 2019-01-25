@@ -26,6 +26,10 @@ class Node:
     def __neq__(self, other):
         return self.name != other.name
 
+    @property
+    def size(self):
+        return self.program_size + self.ro_data_size + self.data_size
+
 class FunctionNode(Node):
     def __init__(self, name, program_size):
         super().__init__(name, program_size, 0, 0)
@@ -103,15 +107,13 @@ class NodeEncoder:
         def __init__(self, min_size):
             self.min_size = min_size
         def __call__(self, n):
-            return (super().__call__(n)
-                and any(map(lambda sz: sz >= self.min_size, [n.program_size, n.ro_data_size, n.data_size])))
+            return (super().__call__(n) and (n.size > self.min_size))
 
     class LeafSmallerFilter(LeafFilter):
         def __init__(self, max_size):
             self.max_size = max_size
         def __call__(self, n):
-            return (super().__call__(n)
-                and any(map(lambda sz: sz < self.max_size, [n.program_size, n.ro_data_size, n.data_size])))
+            return (super().__call__(n) and (n.size < self.max_size))
 
     is_recursive = True
     recursion_level = 16
