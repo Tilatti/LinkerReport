@@ -121,15 +121,6 @@ $ linker_report.py --human-readable --out-format table --object object1.o
 |var2|0|4|0|
 ```
 
-Generate a wiki table with all the symbols smaller than 8 bytes contained in an object file:
-
-```console
-$ linker_report.py --filter "size<8" --out-format table --archive ./archive.a
-||Name||Program size||Data size||Read-only data size||
-|var3|0|0|4|
-|var2|0|4|0|
-```
-
 We need now an executable ELF file.
 
 ```console
@@ -147,5 +138,61 @@ $ linker_report.py --out-format json --elf a.out
     "ro_data_size": 0,
     "data_size": 69,
     "sub_nodes": ...
+}
+```
+
+Some filters are implemented. These filter are only applicable on symbols. The
+tree structure with the containers (object or archive files) is still
+generated.
+
+Generate a wiki table with all the symbols smaller than 8 bytes contained in an
+archive file.
+
+```console
+$ linker_report.py --filter "size<8" --out-format table --archive ./archive.a
+||Name||Program size||Data size||Read-only data size||
+|archive.a|0|12|4|
+|object1.o|0|12|0|
+|var2|0|4|0|
+|object2.o|0|0|4|
+|var3|0|0|4|
+```
+
+Generate JSON object with the symbol "var1" contained in an archive file.
+
+```console
+$ linker_report.py --filter "name=var1" --out-format json --archive ./archive.a
+{
+    "name": "archive.a",
+    "type": "archive",
+    "program_size": 0,
+    "ro_data_size": 4,
+    "data_size": 12,
+    "sub_nodes": [
+        {
+            "name": "object2.o",
+            "type": "object",
+            "program_size": 0,
+            "ro_data_size": 4,
+            "data_size": 0,
+            "sub_nodes": []
+        },
+        {
+            "name": "object1.o",
+            "type": "object",
+            "program_size": 0,
+            "ro_data_size": 0,
+            "data_size": 12,
+            "sub_nodes": [
+                {
+                    "name": "var1",
+                    "type": "variable",
+                    "program_size": 0,
+                    "ro_data_size": 0,
+                    "data_size": 8
+                }
+            ]
+        }
+    ]
 }
 ```
