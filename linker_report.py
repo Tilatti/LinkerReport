@@ -114,6 +114,7 @@ class NodeEncoder:
                 and any(map(lambda sz: sz < self.max_size, [n.program_size, n.ro_data_size, n.data_size])))
 
     is_recursive = True
+    recursion_level = 16
     is_human_readable = False
     filters = []
 
@@ -151,7 +152,8 @@ class JsonNodeEncoder(json.JSONEncoder, NodeEncoder):
         """Transform a Node instance to a serializable structure for json encoder."""
         if isinstance(n, Node):
             d = self.to_fmt_dict(n)
-            if self.is_recursive and isinstance(n, ContainerNode):
+            if self.recursion_level > 0 and self.is_recursive and isinstance(n, ContainerNode):
+                self.recursion_level = self.recursion_level - 1
                 d["sub_nodes"] = [self.default(sn) for sn in n.nodes]
             return d
         else:
@@ -165,7 +167,8 @@ class WikiTableNodeEncoder(NodeEncoder):
                 if self.apply_filters(n):
                     d = self.to_fmt_dict(n)
                     s += "|{}|{}|{}|{}|\n".format(n.name, d["program_size"], d["data_size"], d["ro_data_size"])
-                if self.is_recursive and isinstance(n, ContainerNode):
+                if self.recursion_level > 0 and self.is_recursive and isinstance(n, ContainerNode):
+                    self.recursion_level = self.recursion_level - 1
                     s += rec(list(n.nodes))
             return s
         s = "||Name||Program size||Data size||Read-only data size||\n"
@@ -260,9 +263,9 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='LinkerReport')
 
-    parser.add_argument('--objectfile', dest='objectfile', nargs="+", type=str, help='Input object file', default=[])
-    parser.add_argument('--archivefile', dest='archivefile', nargs="+", type=str, help='Input archive file', default=[])
-    parser.add_argument('--elffile', dest='elffile', nargs="+", type=str, help='Input ELF file', default=[])
+    parser.add_argument('--object', dest='objectfile', nargs="+", type=str, help='Input object file', default=[])
+    parser.add_argument('--archive', dest='archivefile', nargs="+", type=str, help='Input archive file', default=[])
+    parser.add_argument('--elf', dest='elffile', nargs="+", type=str, help='Input ELF file', default=[])
 
     parser.add_argument('--human-readable', dest='human_readable', action='store_true', help='Human readable output', default=False)
     parser.add_argument('--sumarize', dest='sumarize', action='store_true', help='Sumarize output', default=False)
@@ -295,7 +298,8 @@ if __name__ == "__main__":
             cs.append(c)
 
     # Configure the encoders
-    NodeEncoder.is_recursive = not args.sumarize
+    NodeEncoder.is_recursive = True
+    NodeEncoder.recursion_level = 1 if args.sumarize else 32
     NodeEncoder.is_human_readable = args.human_readable
     NodeEncoder.filters = fs
 
@@ -305,7 +309,7 @@ if __name__ == "__main__":
         output_str = WikiTableNodeEncoder().dumps(cs)
     elif args.output_format == "json":
         for c in cs:
-            output_str += json.dumps(c, cls=JsonNodeEncoder, indent=4, sort_keys=True)
+            output_str += json.dumps(c, cls=JsonNodeEncoder, indent=4, sort_keys=False)
     else:
         parser.print_help()
 
