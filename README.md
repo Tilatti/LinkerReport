@@ -13,7 +13,7 @@ symbols.
 usage: linker_report.py [-h] [--object OBJECTFILE [OBJECTFILE ...]]
                         [--archive ARCHIVEFILE [ARCHIVEFILE ...]]
                         [--elf ELFFILE [ELFFILE ...]] [--human-readable]
-                        [--sumarize] [--filter FILTER [FILTER ...]]
+                        [--summarize] [--filter FILTER [FILTER ...]]
                         [--out-format [OUTPUT_FORMAT]] [--out [OUTPUT_FILE]]
 ```
 
@@ -37,7 +37,7 @@ $ linker_report.py --out-format json --archive archive.a
 Generate a JSON file with the objects contained in an archive file.
 
 ```shell
-$ linker_report.py --out-format json --sumarize --archive archive.a
+$ linker_report.py --out-format json --summarize --archive archive.a
 ```
 
 Generate a wiki table with the symbols contained in an object file:

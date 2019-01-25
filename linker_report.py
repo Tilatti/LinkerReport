@@ -268,7 +268,7 @@ if __name__ == "__main__":
     parser.add_argument('--elf', dest='elffile', nargs="+", type=str, help='Input ELF file', default=[])
 
     parser.add_argument('--human-readable', dest='human_readable', action='store_true', help='Human readable output', default=False)
-    parser.add_argument('--sumarize', dest='sumarize', action='store_true', help='Sumarize output', default=False)
+    parser.add_argument('--summarize', dest='summarize', action='store_true', help='Sumarize output', default=False)
     parser.add_argument('--filter', dest='filter', nargs="+", help='Filter to apply on nodes list (only with table output).', default=[])
 
     parser.add_argument('--out-format', dest='output_format', nargs="?", type=str, help='Output format (json, table)', default="json")
@@ -299,7 +299,7 @@ if __name__ == "__main__":
 
     # Configure the encoders
     NodeEncoder.is_recursive = True
-    NodeEncoder.recursion_level = 1 if args.sumarize else 32
+    NodeEncoder.recursion_level = 1 if args.summarize else 32
     NodeEncoder.is_human_readable = args.human_readable
     NodeEncoder.filters = fs
 
