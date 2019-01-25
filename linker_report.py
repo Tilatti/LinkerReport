@@ -6,7 +6,7 @@ import sys
 import os
 import json
 
-# 'Node' definitions for symboles (functions, constants, variables, ...) or
+# 'Node' definitions for symbols (functions, constants, variables, ...) or
 # symbole containers (archives, object files, ...)
 
 class Node:
@@ -182,8 +182,8 @@ class WikiTableNodeEncoder(NodeEncoder):
 def parse_nm(filepath):
     """
     nm can be called to .o, .a or .elf.
-    With .o and .elf it is simply a list of symboles, in this case the function parse_sym_line() would be enough.
-    With .a, there is for each .o a list of symboles.
+    With .o and .elf it is simply a list of symbols, in this case the function parse_sym_line() would be enough.
+    With .a, there is for each .o a list of symbols.
     """
 
     def parse_sym_line(l):

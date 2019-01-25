@@ -136,7 +136,7 @@ We need now an executable ELF file.
 $ echo "const char* var1 = \"test\"; int var2 = 32; int main(void) {printf(\"bonjour\");}" | gcc -x c -
 ```
 
-Generate a JSON object with the symboles in an executable file.
+Generate a JSON object with the symbols contained in an executable file.
 
 ```console
 $ linker_report.py --out-format json --elf a.out
