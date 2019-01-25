@@ -18,7 +18,7 @@ class Node:
         self.type = "any"
 
     def __repr__(self):
-        return "Node({0.name}, {0.type}, {0.program_size}, {0.ro_data_size}, {0.data_size})".format(self)
+        return "Node({0.name}, {0.program_size}, {0.ro_data_size}, {0.data_size})".format(self)
     def __hash__(self):
         return self.name.__hash__()
     def __eq__(self, other):
@@ -227,11 +227,11 @@ def parse_nm(filepath):
 
 def parse_readelf(filepath):
     def parse_sym_line(l):
-        fields = l.strip(" \t\n").strip(" ")
-        if len(fields) != 8:
+        fields = list(filter(lambda e: e != "", l.strip(" \t\n").expandtabs().split(" ")))
+        if (len(fields) != 8) or not (all(map(lambda c: ('0' <= c) and (c <= '9'), fields[2]))):
             return None
         addr = fields[1]
-        size = fields[2]
+        size = int(fields[2])
         stype = fields[3]
         section = fields[6]
         name = fields[7]
@@ -244,7 +244,7 @@ def parse_readelf(filepath):
         else:
             return None
     with subprocess.Popen(["readelf", "--syms", filepath], stdout=subprocess.PIPE) as p:
-        for l in [str(le, 'utf-8') for l in p.stdout.readlines()]:
+        for l in [str(le, 'utf-8') for le in p.stdout.readlines()]:
             n = parse_sym_line(l)
             if n is not None:
                 yield n
@@ -293,10 +293,15 @@ if __name__ == "__main__":
 
     # Build the list of ContainerNodes (executable, archive or object files) corresponding to the given arguments.
     cs = []
-    for files, node_type in [(args.objectfile, ObjectNode), (args.archivefile, ArchiveNode), (args.elffile, ExecutableNode)]:
+    for files, node_type in [(args.objectfile, ObjectNode), (args.archivefile, ArchiveNode)]:
         for filename in files:
             c = node_type(os.path.basename(filename))
             populate_container_with_nm(filename, c)
+            cs.append(c)
+    for files, node_type in [(args.elffile, ExecutableNode)]:
+        for filename in files:
+            c = node_type(os.path.basename(filename))
+            populate_container_with_readelf(filename, c)
             cs.append(c)
 
     # Configure the encoders
@@ -317,3 +322,4 @@ if __name__ == "__main__":
 
     if len(output_str) > 0:
         args.output_file.write(output_str)
+        print("")
