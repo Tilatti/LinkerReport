@@ -10,36 +10,50 @@ symbols.
 ## Usage
 
 ```
-usage: linker_report.py [-h] [--objectfile OBJECTFILE [OBJECTFILE ...]]
-                        [--archivefile ARCHIVEFILE [ARCHIVEFILE ...]]
-                        [--elffile ELFFILE [ELFFILE ...]] [--human-readable]
+usage: linker_report.py [-h] [--object OBJECTFILE [OBJECTFILE ...]]
+                        [--archive ARCHIVEFILE [ARCHIVEFILE ...]]
+                        [--elf ELFFILE [ELFFILE ...]] [--human-readable]
                         [--sumarize] [--filter FILTER [FILTER ...]]
                         [--out-format [OUTPUT_FORMAT]] [--out [OUTPUT_FILE]]
 ```
 
 ## Examples
 
-Generate a wiki table with the symbols contained in the object file:
+We create some object file and an archive.
 
-```
-$ ./linker_report.py --human-readable --outformat table --objectfile test.o
+```shell
+$ echo "const char* var1 = \"test\"; int var2 = 32;" | gcc -x c - -c -o object1.o
+$ echo "const int var3 = 32" | gcc -x c - -c -o object2.o
+$ ar cr ./archive.a ./object1.o ./object2.o
 ```
 
 Generate a JSON file with the tree of object files and symbols contained in
-the archive file.
+an archive file.
 
-```
-$ ./linker_report.py --outformat json --archivefile test.a
-```
-
-Generate a JSON file with the section sizes of the archive file.
-
-```
-$ ./linker_report.py --outformat json --sumarize --archivefile test.a
+```shell
+$ linker_report.py --out-format json --archive archive.a
 ```
 
-Generate a JSON object with the section sizes of the executable file.
+Generate a JSON file with the objects contained in an archive file.
 
+```shell
+$ linker_report.py --out-format json --sumarize --archive archive.a
 ```
-$ ./linker_report.py --outformat json --sumarize --elffile a.out
+
+Generate a wiki table with the symbols contained in an object file:
+
+```shell
+$ linker_report.py --human-readable --out-format table --object object1.o
+```
+
+We need now an executable ELF file.
+
+```shell
+$ echo "const char* var1 = \"test\"; int var2 = 32; int main(void) {printf(\"bonjour\");}" | gcc -x c -
+```
+
+Generate a JSON object with the symboles in an executable file.
+
+```shell
+$ linker_report.py --out-format json --elf a.out
 ```
