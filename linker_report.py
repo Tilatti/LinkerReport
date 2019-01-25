@@ -152,26 +152,43 @@ class NodeEncoder:
 class JsonNodeEncoder(json.JSONEncoder, NodeEncoder):
     def default(self, n):
         """Transform a Node instance to a serializable structure for json encoder."""
-        if isinstance(n, Node):
+        if isinstance(n, ContainerNode):
             d = self.to_fmt_dict(n)
-            if self.recursion_level > 0 and self.is_recursive and isinstance(n, ContainerNode):
+            if self.is_recursive and (self.recursion_level > 0):
                 self.recursion_level = self.recursion_level - 1
-                d["sub_nodes"] = [self.default(sn) for sn in n.nodes]
+                d["sub_nodes"] = []
+                for sn in n.nodes:
+                    sub_encoded = self.default(sn)
+                    if sub_encoded is not None:
+                        d["sub_nodes"].append(sub_encoded)
             return d
+        elif isinstance(n, Node):
+            if self.apply_filters(n):
+                return self.to_fmt_dict(n)
+            else:
+                return None
         else:
             return json.JSONEncoder.default(self, o)
 
 class WikiTableNodeEncoder(NodeEncoder):
     def dumps(self, node_list):
+        def table_line(name, size1, size2, size3):
+            return "|{}|{}|{}|{}|\n".format(name, size1, size2, size3)
         def rec(node_list):
             s = ""
             for n in node_list:
-                if self.apply_filters(n):
+                if isinstance(n, ContainerNode):
                     d = self.to_fmt_dict(n)
-                    s += "|{}|{}|{}|{}|\n".format(n.name, d["program_size"], d["data_size"], d["ro_data_size"])
-                if self.recursion_level > 0 and self.is_recursive and isinstance(n, ContainerNode):
-                    self.recursion_level = self.recursion_level - 1
-                    s += rec(list(n.nodes))
+                    s += table_line(n.name, d["program_size"], d["data_size"], d["ro_data_size"])
+                    if self.is_recursive and (self.recursion_level > 0):
+                        self.recursion_level = self.recursion_level - 1
+                        s += rec(list(n.nodes))
+                elif isinstance(n, Node):
+                    if self.apply_filters(n):
+                        d = self.to_fmt_dict(n)
+                        s += table_line(n.name, d["program_size"], d["data_size"], d["ro_data_size"])
+                else:
+                    raise Exception("Unknown type to encode")
             return s
         s = "||Name||Program size||Data size||Read-only data size||\n"
         s += rec(node_list)
