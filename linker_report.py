@@ -282,9 +282,9 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='LinkerReport')
 
-    parser.add_argument('--object', dest='objectfile', nargs="+", type=str, help='Input object file', default=[])
-    parser.add_argument('--archive', dest='archivefile', nargs="+", type=str, help='Input archive file', default=[])
-    parser.add_argument('--elf', dest='elffile', nargs="+", type=str, help='Input ELF file', default=[])
+    parser.add_argument('--object', dest='objectfile', nargs="+", type=str, help='Input object file (use nm)', default=[])
+    parser.add_argument('--archive', dest='archivefile', nargs="+", type=str, help='Input archive file (use nm)', default=[])
+    parser.add_argument('--elf', dest='elffile', nargs="+", type=str, help='Input ELF file (use readelf)', default=[])
 
     parser.add_argument('--human-readable', dest='human_readable', action='store_true', help='Human readable output', default=False)
     parser.add_argument('--summarize', dest='summarize', action='store_true', help='Sumarize output', default=False)
