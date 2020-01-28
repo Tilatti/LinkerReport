@@ -141,8 +141,8 @@ $ linker_report.py --elf a.out
 }
 ```
 
-Note here that we use the flag "--elf". The only difference with "--object" and
-"--archive" is that the first get the list of symbols via *readelf* and the
+Note here that we use the flag *--elf*. The difference with *--object* and
+*--archive* is that the first get the list of symbols via *readelf* and the
 second via *nm*.
 
 Some filters are implemented. These filter are only applicable on symbols. The
@@ -234,7 +234,9 @@ $ linker_report.py --elf ./archive.a | jq ".sub_nodes | sort_by(.name)"
 ```
 
 Note that to be able to execute the previous jq program, we need a flat
-*sub_nodes* list, it is why we use the *--elf* flag.
+*sub_nodes* list. If we use --archive (or --object), *linker_report* will call
+*nm* and be able to build a tree. In order to get a flat *sub_nodes*,
+linker_report shall call *readelf*, it is why we use the *--elf* flag.
 
 In the same way, we can sort the symbols according to their size in data
 sections (.data, .bss or .rodata):
