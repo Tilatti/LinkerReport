@@ -198,9 +198,9 @@ class WikiTableNodeEncoder(NodeEncoder):
 
 def parse_nm(filepath):
     """
-    nm can be called to .o, .a or .elf.
-    With .o and .elf it is simply a list of symbols, in this case the function parse_sym_line() would be enough.
-    With .a, there is for each .o a list of symbols.
+    nm can be called to .o, .a or executables.
+    With .o and exectuables it gives a list of symbols.
+    With .a, it gives for each archived .o a list of symbols.
     """
 
     def parse_sym_line(l):
@@ -243,6 +243,10 @@ def parse_nm(filepath):
             yield object_node
 
 def parse_readelf(filepath):
+    """
+    readelf can be called to .o, .a or executables in the ELF format.
+    With .o, .a and exectuables it gives a list of symbols.
+    """
     def parse_sym_line(l):
         fields = list(filter(lambda e: e != "", l.strip(" \t\n").expandtabs().split(" ")))
         if (len(fields) != 8) or not (all(map(lambda c: ('0' <= c) and (c <= '9'), fields[2]))):
