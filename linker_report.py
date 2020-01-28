@@ -260,7 +260,7 @@ def parse_readelf(filepath):
             return VariableNode(name, size)
         else:
             return None
-    with subprocess.Popen(["readelf", "--syms", filepath], stdout=subprocess.PIPE) as p:
+    with subprocess.Popen(["readelf", "--syms", "--wide", filepath], stdout=subprocess.PIPE) as p:
         for l in [str(le, 'utf-8') for le in p.stdout.readlines()]:
             n = parse_sym_line(l)
             if n is not None:
