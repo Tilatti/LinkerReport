@@ -234,13 +234,13 @@ $ linker_report.py --elf ./archive.a | jq ".sub_nodes | sort_by(.name)"
 ```
 
 Note that to be able to execute the previous jq program, we need a flat
-*sub_nodes* list, it is why we use the *--elf* flag.
+"sub_nodes" list, it is why we use the "--elf" flag.
 
 In the same way, we can sort the symbols according to their size in data
 sections (.data, .bss or .rodata):
 
 ```console
-linker_report.py --elf ./archive.a | jq ".sub_nodes | sort_by(.data_size)"
+$ linker_report.py --elf ./archive.a | jq ".sub_nodes | sort_by(.data_size)"
 [
   {
     "name": "var2",
