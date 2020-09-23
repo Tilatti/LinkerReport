@@ -242,7 +242,7 @@ In the same way, we can sort the symbols according to their size in data
 sections (.data, .bss or .rodata):
 
 ```console
-linker_report.py --elf ./archive.a | jq ".sub_nodes | sort_by(.data_size)"
+$ linker_report.py --elf ./archive.a | jq ".sub_nodes | sort_by(.data_size)"
 [
   {
     "name": "var2",
