@@ -286,57 +286,62 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='LinkerReport')
 
-    parser.add_argument('--object', dest='objectfile', nargs="+", type=str, help='Input object file (use nm)', default=[])
-    parser.add_argument('--archive', dest='archivefile', nargs="+", type=str, help='Input archive file (use nm)', default=[])
-    parser.add_argument('--elf', dest='elffile', nargs="+", type=str, help='Input ELF file (use readelf)', default=[])
+    parser.add_argument('--object', dest='objectfile', nargs="+", type=str, help='Input object file', default=[])
+    parser.add_argument('--archive', dest='archivefile', nargs="+", type=str, help='Input archive file', default=[])
+    parser.add_argument('--executable', dest='exefile', nargs="+", type=str, help='Input executable file', default=[])
+    parser.add_argument('--use-readelf', dest='use_readelf', action='store_true',
+        help='Use readelf to get the list of symbols (by default we use nm)', default=False)
 
-    parser.add_argument('--human-readable', dest='human_readable', action='store_true', help='Human readable output', default=False)
+    parser.add_argument('--human-readable', dest='human_readable', action='store_true',
+        help='Human readable output', default=False)
     parser.add_argument('--summarize', dest='summarize', action='store_true', help='Sumarize output', default=False)
-    parser.add_argument('--filter', dest='filter', nargs="+", help='Filter to apply on nodes list (only with table output).', default=[])
+    parser.add_argument('--filter', dest='filter', nargs="+",
+        help='Filter to apply on nodes list (only with table output).', default=[])
 
-    parser.add_argument('--out-format', dest='output_format', nargs="?", type=str, help='Output format (json, table)', default="json")
-    parser.add_argument('--out', dest='output_file', nargs="?", type=argparse.FileType('w'), help='Output file', default=sys.stdout)
+    parser.add_argument('--out-format', dest='output_format', nargs="?", type=str,
+        help='Output format (json, table)', default="json")
+    parser.add_argument('--out', dest='output_file', nargs="?", type=argparse.FileType('w'),
+        help='Output file', default=sys.stdout)
 
     args = parser.parse_args()
 
     # Build the list of filters
-    fs = []
+    filters = []
     for fstr in args.filter:
         m = re.fullmatch("size>([0-9]+)", fstr)
         if (m is not None) and (len(m.groups()[0]) > 0):
-            fs.append(NodeEncoder.LeafBiggerFilter(int(m.groups()[0])))
+            filters.append(NodeEncoder.LeafBiggerFilter(int(m.groups()[0])))
         m = re.fullmatch("size<([0-9]+)", fstr)
         if (m is not None) and (len(m.groups()[0]) > 0):
-            fs.append(NodeEncoder.LeafSmallerFilter(int(m.groups()[0])))
+            filters.append(NodeEncoder.LeafSmallerFilter(int(m.groups()[0])))
         m = re.fullmatch("name=(.+)", fstr)
         if (m is not None) and (len(m.groups()[0]) > 0):
-            fs.append(NodeEncoder.NameFilter(str(m.groups()[0])))
+            filters.append(NodeEncoder.NameFilter(str(m.groups()[0])))
 
     # Build the list of ContainerNodes (executable, archive or object files) corresponding to the given arguments.
-    cs = []
-    for files, node_type in [(args.objectfile, ObjectNode), (args.archivefile, ArchiveNode)]:
+    fs = [(args.objectfile, ObjectNode), (args.archivefile, ArchiveNode), (args.exefile, ExecutableNode)]
+    containers = []
+    for files, node_type in fs:
         for filename in files:
             c = node_type(os.path.basename(filename))
-            populate_container_with_nm(filename, c)
-            cs.append(c)
-    for files, node_type in [(args.elffile, ExecutableNode)]:
-        for filename in files:
-            c = node_type(os.path.basename(filename))
-            populate_container_with_readelf(filename, c)
-            cs.append(c)
+            if args.use_readelf:
+                populate_container_with_readelf(filename, c)
+            else:
+                populate_container_with_nm(filename, c)
+            containers.append(c)
 
     # Configure the encoders
     NodeEncoder.is_recursive = True
     NodeEncoder.recursion_level = 1 if args.summarize else 32
     NodeEncoder.is_human_readable = args.human_readable
-    NodeEncoder.filters = fs
+    NodeEncoder.filters = filters
 
     # Encode the list of ContainerNodes in the selected output format.
     output_str = ""
     if args.output_format == "table":
-        output_str = WikiTableNodeEncoder().dumps(cs)
+        output_str = WikiTableNodeEncoder().dumps(containers)
     elif args.output_format == "json":
-        for c in cs:
+        for c in containers:
             output_str += json.dumps(c, cls=JsonNodeEncoder, indent=4, sort_keys=False)
     else:
         parser.print_help()

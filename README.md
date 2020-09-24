@@ -12,14 +12,15 @@ of symbols.
 ```
 usage: linker_report.py [-h] [--object OBJECTFILE [OBJECTFILE ...]]
                         [--archive ARCHIVEFILE [ARCHIVEFILE ...]]
-                        [--elf ELFFILE [ELFFILE ...]] [--human-readable]
-                        [--summarize] [--filter FILTER [FILTER ...]]
+                        [--executable EXEFILE [EXEFILE ...]] [--use-readelf]
+                        [--human-readable] [--summarize]
+                        [--filter FILTER [FILTER ...]]
                         [--out-format [OUTPUT_FORMAT]] [--out [OUTPUT_FILE]]
 ```
 
 ## Examples
 
-We create some object file and an archive.
+We create some object ELF file and an archive.
 
 ```console
 $ echo "const char* var1 = \"test\"; int var2 = 32;" | gcc -x c - -c -o object1.o
@@ -130,7 +131,7 @@ $ echo "const char* var1 = \"test\"; int var2 = 32; int main(void) {printf(\"bon
 Generate a JSON object with the symbols contained in an executable file.
 
 ```console
-$ linker_report.py --elf a.out
+$ linker_report.py --executable a.out
 {
     "name": "a.out",
     "type": "executable",
@@ -141,13 +142,12 @@ $ linker_report.py --elf a.out
 }
 ```
 
-Note here that we use the flag *--elf*. The difference with *--object* and
-*--archive* is that the first get the list of symbols via *readelf* and the
-second via *nm*.
+Their is no functional difference by giving the input files via
+*--executable*, *--object* or *--archive*. The only difference will be the
+*type* field of the root object in the JSON output file.
 
 Some filters are implemented. These filter are only applicable on symbols. The
-tree structure with the containers (object or archive files) is still
-generated.
+tree structure with the containers is still generated.
 
 Generate a wiki table with all the symbols smaller than 8 bytes contained in an
 archive file.
@@ -207,7 +207,7 @@ We cannot directly compare two JSON outpus with diff, as the symbols are not
 sorted. But we can use *jq* to sort the symbols in alphabetical order:
 
 ```console
-$ linker_report.py --elf ./archive.a | jq ".sub_nodes | sort_by(.name)"
+$ linker_report.py --use-readelf --archive ./archive.a | jq ".sub_nodes | sort_by(.name)"
 [
   {
     "name": "var1",
@@ -234,15 +234,14 @@ $ linker_report.py --elf ./archive.a | jq ".sub_nodes | sort_by(.name)"
 ```
 
 Note that to be able to execute the previous jq program, we need a flat
-*sub_nodes* list. If we use --archive (or --object), *linker_report* will call
-*nm* and be able to build a tree. In order to get a flat *sub_nodes*,
-linker_report shall call *readelf*, it is why we use the *--elf* flag.
+*sub_nodes* list. In order to get a flat *sub_nodes*, linker_report shall call
+*readelf*, so we use the *--use-readelf* flag.
 
 In the same way, we can sort the symbols according to their size in data
 sections (.data, .bss or .rodata):
 
 ```console
-$ linker_report.py --elf ./archive.a | jq ".sub_nodes | sort_by(.data_size)"
+$ linker_report.py --use-readelf --archive ./archive.a | jq ".sub_nodes | sort_by(.data_size)"
 [
   {
     "name": "var2",
