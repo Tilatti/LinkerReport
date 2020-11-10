@@ -15,7 +15,28 @@ usage: linker_report.py [-h] [--object OBJECTFILE [OBJECTFILE ...]]
                         [--executable EXEFILE [EXEFILE ...]] [--use-readelf]
                         [--human-readable] [--summarize]
                         [--filter FILTER [FILTER ...]]
-                        [--out-format [OUTPUT_FORMAT]] [--out [OUTPUT_FILE]]
+                        [--out-format OUTPUT_FORMAT] [--out OUTPUT_FILE]
+
+LinkerReport
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --object OBJECTFILE [OBJECTFILE ...]
+                        Input object file
+  --archive ARCHIVEFILE [ARCHIVEFILE ...]
+                        Input archive file
+  --executable EXEFILE [EXEFILE ...]
+                        Input executable file
+  --use-readelf         Use readelf to get the list of symbols (by default we
+                        use nm)
+  --human-readable      Human readable output
+  --summarize           Sumarize output
+  --filter FILTER [FILTER ...]
+                        Filter to apply on nodes list (only with table
+                        output).
+  --out-format OUTPUT_FORMAT
+                        Output format (json, table)
+  --out OUTPUT_FILE     Output file
 ```
 
 ## Examples
