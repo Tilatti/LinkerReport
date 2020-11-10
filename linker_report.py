@@ -298,9 +298,9 @@ if __name__ == "__main__":
     parser.add_argument('--filter', dest='filter', nargs="+",
         help='Filter to apply on nodes list (only with table output).', default=[])
 
-    parser.add_argument('--out-format', dest='output_format', nargs="?", type=str,
+    parser.add_argument('--out-format', dest='output_format', type=str,
         help='Output format (json, table)', default="json")
-    parser.add_argument('--out', dest='output_file', nargs="?", type=argparse.FileType('w'),
+    parser.add_argument('--out', dest='output_file', type=argparse.FileType('w'),
         help='Output file', default=sys.stdout)
 
     args = parser.parse_args()
