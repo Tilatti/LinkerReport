@@ -4,29 +4,61 @@
 	"$id": "https://github.com/Tilatti/LinkerReport/json_output.schema",
 
 	"definitions": {
-		"node": {
+
+		"common": {
 			"type": "object",
 			"properties": {
 				"name": { "type": "string" },
-				"type": {
-					"type": "string",
-					"enum": [
-						"archive", "executable", "object",
-						"variable", "constant", "function"
-					]
-				},
-				"program_size": { "type": "number", "minimum": 0},
+				"program_size": { "type": "number", "minimum": 0 },
 				"ro_data_size": { "type": "number", "minimum": 0 },
-				"data_size": { "type": "number", "minimum": 0 },
-				"sub_nodes": { 
-					"type": "array",
-					"items": { "$ref": "#/definitions/node" },
-					"default": []
-				}
+				"data_size": { "type": "number", "minimum": 0 }
 			},
-			"required": ["name", "type", "program_size", "ro_data_size", "data_size"],
-			"additionalProperties": false
+			"required": ["name", "type", "program_size", "ro_data_size", "data_size"]
+		},
+
+		"leaf": {
+			"allOf" : [
+				{
+					"properties": {
+						"type": {
+							"type": "string",
+							"enum": [
+								"constant", "variable", "function"
+							]
+						}
+					}
+				},
+				{ "$ref": "#/definitions/common" }
+			]
+		},
+
+		"container": {
+			"allOf" : [
+				{
+					"properties": {
+						"type": {
+							"type": "string",
+							"enum": [
+								"archive", "object", "executable"
+							]
+						},
+						"sub_nodes": {
+							"type": "array",
+							"items": { "$ref": "#/definitions/node" }
+						}
+					}
+				},
+				{ "$ref": "#/definitions/common" }
+			]
+		},
+
+		"node": {
+			"oneOf": [
+				{"$ref": "#/definitions/leaf"},
+				{"$ref": "#/definitions/container" }
+			]
 		}
 	},
+
 	"$ref": "#/definitions/node"
 }
