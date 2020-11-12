@@ -1,0 +1,32 @@
+{
+	"$schema": "http://json-schema.org/schema#",
+	"$comment": "This JSON schema describes the output of the linker_report.py tool",
+	"$id": "https://github.com/Tilatti/LinkerReport/json_output.schema",
+
+	"definitions": {
+		"node": {
+			"type": "object",
+			"properties": {
+				"name": { "type": "string" },
+				"type": {
+					"type": "string",
+					"enum": [
+						"archive", "executable", "object",
+						"variable", "constant", "function"
+					]
+				},
+				"program_size": { "type": "number", "minimum": 0},
+				"ro_data_size": { "type": "number", "minimum": 0 },
+				"data_size": { "type": "number", "minimum": 0 },
+				"sub_nodes": { 
+					"type": "array",
+					"items": { "$ref": "#/definitions/node" },
+					"default": []
+				}
+			},
+			"required": ["name", "type", "program_size", "ro_data_size", "data_size"],
+			"additionalProperties": false
+		}
+	},
+	"$ref": "#/definitions/node"
+}

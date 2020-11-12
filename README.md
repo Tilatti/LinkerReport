@@ -7,6 +7,16 @@ a Wiki table. The script accepts several ELF files (executable, object or
 archives). It uses the tools *nm* and *readelf* of GNU binutils to get the list
 of symbols.
 
+## Dependencies
+
+Of the linker_report.py script:
+* python3
+
+Of the check.sh test suite:
+* python3
+* jsonschema
+* gcc & binutils
+
 ## Usage
 
 ```
