@@ -9,10 +9,11 @@ of symbols.
 
 ## Dependencies
 
-Of the linker_report.py script:
+The linker_report.py script needs:
 * python3
+* binutils (nm and readelf)
 
-Of the check.sh test suite:
+The check.sh test suite needs:
 * python3
 * jsonschema
 * gcc & binutils
